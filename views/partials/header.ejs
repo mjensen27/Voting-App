@@ -18,6 +18,7 @@
                         <li><a href="/register">Sign Up</a></a></li>
                         <% } else { %>
                         <li><a href="/polls">Welcome, <%= currentUser.username %>!</a></li>
+                        <li><a href="/"><span class="glyphicon glyphicon-cog"></span></a></li>
                         <li><a href="/logout">Logout</a></li>
                         <% } %>
                     </ul>
