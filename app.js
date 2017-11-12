@@ -5,8 +5,7 @@ const   express         = require('express'),
         passport        = require("passport"),
         LocalStrategy   = require("passport-local"),
         User            = require("./models/user"),
-        Poll            = require("./models/poll"),
-        Option          = require("./models/option");
+        Poll            = require("./models/poll");
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/voting-app", {useMongoClient: true}, function(err){
     if (err) {
@@ -39,34 +38,26 @@ app.get('/', (req, res) => {
 });
 
 app.get('/polls', isLoggedIn, (req, res) => {
-    Poll.find({}, (err, allPolls) => {
+    Poll.find({}).sort({created: -1}).limit(8).exec((err, recentPolls) => {
         if (err) {
             console.log(err);
         } else {
-            res.render('polls', {polls: allPolls});
+            res.render('polls', {polls: recentPolls});
         }
     });
 });
 app.post('/polls', (req, res) => {
-    var newPoll = {name: req.body.name};
+    var newPoll = {name: req.body.name, options: []};
     var options = req.body.options;
+    options.forEach(option => {
+        var newOption = {name: option, votes: 0};
+        newPoll.options.push(newOption)
+    });
     Poll.create(newPoll, (err, newPollEntry) => {
         if (err) {
             console.log(err);
         } else {
             console.log('New Poll Created!');
-            options.forEach(option => {
-                var newOption = {name: option};
-                console.log(newOption);
-                Option.create(newOption, (err, newOptionEntry) => {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        newPollEntry.options.push(newOptionEntry);
-                        newPollEntry.save();
-                    }
-                });
-            });
             console.log(newPollEntry);
             res.redirect('/polls'); 
         }
