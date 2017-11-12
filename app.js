@@ -4,7 +4,9 @@ const   express         = require('express'),
         mongoose        = require('mongoose'),        
         passport        = require("passport"),
         LocalStrategy   = require("passport-local"),
-        User            = require("./models/user");
+        User            = require("./models/user"),
+        Poll            = require("./models/poll"),
+        Option          = require("./models/option");
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/voting-app", {useMongoClient: true}, function(err){
     if (err) {
@@ -37,8 +39,44 @@ app.get('/', (req, res) => {
 });
 
 app.get('/polls', isLoggedIn, (req, res) => {
-    res.render('polls');
-})
+    Poll.find({}, (err, allPolls) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render('polls', {polls: allPolls});
+        }
+    });
+});
+app.post('/polls', (req, res) => {
+    var newPoll = {name: req.body.name};
+    var options = req.body.options;
+    Poll.create(newPoll, (err, newPollEntry) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log('New Poll Created!');
+            options.forEach(option => {
+                var newOption = {name: option};
+                console.log(newOption);
+                Option.create(newOption, (err, newOptionEntry) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        newPollEntry.options.push(newOptionEntry);
+                        newPollEntry.save();
+                    }
+                });
+            });
+            console.log(newPollEntry);
+            res.redirect('/polls'); 
+        }
+    });
+});
+
+app.get('/polls/new', (req, res) => {
+    res.render('new');
+});
+
 
 app.get('/register', (req, res) => {
     res.render('register');
@@ -76,6 +114,6 @@ function isLoggedIn(req, res, next) {
     res.redirect("/login");
 }
 
-app.listen(process.env.port || 3000, () => {
+app.listen(process.env.port || 4200, () => {
     console.log('App Running...');
 });
