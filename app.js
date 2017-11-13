@@ -50,8 +50,10 @@ app.post('/polls', (req, res) => {
     var newPoll = {name: req.body.name, options: []};
     var options = req.body.options;
     options.forEach(option => {
+        if (option !== '') {
         var newOption = {name: option, votes: 0};
-        newPoll.options.push(newOption)
+        newPoll.options.push(newOption);
+        }
     });
     Poll.create(newPoll, (err, newPollEntry) => {
         if (err) {
