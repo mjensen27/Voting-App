@@ -12,7 +12,7 @@
 <div class="row text-center" style="display: flex; flex-wrap: wrap;">
     <% polls.forEach(function(poll){ %>
         <div class="col-md-3 col-sm-6">
-            <h1><%= poll['name'] %></h1>
+            <h1><a href="/polls/<%= poll['_id'] %>"><%= poll['name'] %></a></h1>
             <ul style="list-style: none; padding: 0;">
                 <% poll['options'].forEach(function(option){ %>
                     <li><%= option['name'] %></li>

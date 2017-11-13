@@ -70,6 +70,17 @@ app.get('/polls/new', (req, res) => {
     res.render('new');
 });
 
+app.get('/polls/:id', (req, res) => {
+    Poll.findById(req.params.id, (err, foundPoll) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(foundPoll);
+            res.render('show', {poll: foundPoll});
+        }
+    });
+});
+
 
 app.get('/register', (req, res) => {
     res.render('register');
